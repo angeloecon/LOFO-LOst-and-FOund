@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">LOFO</string>
+    <string name="title_activity_lost_items">LostItems</string>
+    <string name="title_lost">Lost</string>
+    <string name="title_found">Found</string>
+    <string name="title_help">Help</string>
+    <string name="nav_header_default_text">Profile Loading...</string>
+    <string name ="filter_prompt">Filter By Category</string>
+<string name="upload_image">Upload Image</string>
+
+
+    <string name="category_default">All Categories</string>
+
+    <string name="image_added">Image Added</string>
+
+
+    <string name="OpenDrawer">Open Drawer</string>
+    <string name="CloseDrawer">Close Drawer</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>

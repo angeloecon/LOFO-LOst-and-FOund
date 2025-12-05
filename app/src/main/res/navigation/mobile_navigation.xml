@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_dashboard">
+
+    <!-- Standard Dashboard (often shared with Bottom Nav) -->
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.shruti.lofo.ui.DashBoard.DashBoardFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <!-- Matches menu ID: lost_drawer -->
+    <fragment
+        android:id="@+id/lost_drawer"
+        android:name="com.shruti.lofo.ui.Lost.LostFragment"
+        android:label="Lost"
+        tools:layout="@layout/fragment_lost" />
+
+    <!-- Matches menu ID: found_drawer -->
+    <fragment
+        android:id="@+id/found_drawer"
+        android:name="com.shruti.lofo.ui.Found.FoundFragment"
+        android:label="Found"
+        tools:layout="@layout/fragment_found" />
+
+    <!-- Default help fragment ID (if used by Bottom Nav) -->
+    <fragment
+        android:id="@+id/navigation_help"
+        android:name="com.shruti.lofo.ui.Help.HelpFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_help" />
+
+    <!-- Matches menu ID: myitems_drawer -->
+    <fragment
+        android:id="@+id/myitems_drawer"
+        android:name="com.shruti.lofo.ui.MyItems.MyItems"
+        android:label="My Items"
+        tools:layout="@layout/fragment_my_items" />
+
+    <!-- Matches menu ID: nav_my_profile (from drawer_nav_menu.xml) -->
+    <fragment
+        android:id="@+id/nav_my_profile"
+        android:name="com.shruti.lofo.ui.MyProfile.MyProfileFragment"
+        android:label="My Profile"
+        tools:layout="@layout/fragment_my_profile" />
+
+    <!-- Matches menu ID: nav_about_us (from drawer_nav_menu.xml) -->
+    <fragment
+        android:id="@+id/nav_about_us"
+        android:name="com.shruti.lofo.ui.AboutUs.AboutUsFragment"
+        android:label="About Us"
+        tools:layout="@layout/fragment_about_us" />
+
+    <!-- Matches menu ID: nav_privacy (from drawer_nav_menu.xml) -->
+    <fragment
+        android:id="@+id/nav_privacy"
+        android:name="com.shruti.lofo.ui.PrivacyPolicy.PrivacyPolicyFragment"
+        android:label="Privacy"
+        tools:layout="@layout/fragment_privacy_policy" />
+
+</navigation>

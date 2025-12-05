@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:title="Home"
+        android:icon="@drawable/home_bottom_nav"/>
+
+    <item
+        android:id="@+id/lost_drawer"
+        android:title="Lost"
+        android:icon="@drawable/lost_icon"/>
+
+    <item
+        android:id="@+id/found_drawer"
+        android:title="Found "
+        android:icon="@drawable/found_icon"/>
+
+    <item
+        android:id="@+id/navigation_help"
+        android:title="Help"
+        android:icon="@drawable/help_bottom_nav"/>
+
+</menu>

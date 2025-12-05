@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Stunning Red to Blue Gradient Background -->
+        <View
+            android:id="@+id/backgroundGradient"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/drawer_gradient_bg"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Animated Top Accent Bar -->
+        <View
+            android:id="@+id/topAccent"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:background="@drawable/accent_gradient"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Premium Toolbar with Multi-color Gradient -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/toolbarCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:cardElevation="12dp"
+            app:cardCornerRadius="0dp"
+            app:layout_constraintTop_toBottomOf="@id/topAccent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@drawable/toolbar_gradient_bg"
+                android:elevation="0dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:titleTextColor="@android:color/white" />
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Elegant Glass Morphism Card Container -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@id/toolbarCard"
+            app:layout_constraintBottom_toTopOf="@id/nav_bottom"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Decorative Border Effect -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="571dp"
+                android:background="@drawable/card_border_effect">
+
+                <!-- Inner Content Area with Shadow -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="2dp"
+                    android:background="@drawable/card_inner_design">
+
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/nav_host_fragment"
+                        android:name="androidx.navigation.fragment.NavHostFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:defaultNavHost="true"
+                        app:navGraph="@navigation/mobile_navigation" />
+
+                </FrameLayout>
+
+            </FrameLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Modern Bottom Navigation with Gradient Accent -->
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/nav_bottom"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="24dp"
+                app:cardCornerRadius="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Stylish gradient divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:background="@drawable/divider_gradient"/>
+
+                    <com.google.android.material.bottomnavigation.BottomNavigationView
+                        android:id="@+id/nav_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        app:menu="@menu/bottom_nav_menu"
+                        app:labelVisibilityMode="labeled"
+                        app:itemIconTint="@color/bottom_nav_icon_color"
+                        app:itemTextColor="@color/bottom_nav_icon_color"
+                        app:itemRippleColor="#308B2332"
+                        app:elevation="0dp"
+                        app:itemIconSize="26dp"
+                        />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/drawer_gradient_bg"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/header_drawer"
+        app:menu="@menu/drawer_nav_menu"
+        app:itemIconTint="@null"
+        app:itemTextColor="@color/drawer_item_text_color"
+        app:itemShapeFillColor="#30FFFFFF"
+        app:itemRippleColor="#40FFFFFF"
+        app:elevation="16dp"
+        app:itemIconPadding="0dp"
+        app:itemHorizontalPadding="16dp"/>
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F9F9"
+    tools:context=".AboutUsActivity">
+
+    <LinearLayout
+        android:id="@+id/header_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/maroon_primary"
+        android:orientation="vertical"
+        android:paddingTop="48dp"
+        android:paddingBottom="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/aboutUsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="About LOFO"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Simplified Lost &amp; Found for our Community"
+            android:textAlignment="center"
+            android:textColor="#CCCCCC"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="20dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/header_container"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"  android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="8dp">
+
+                <LinearLayout android:background="@drawable/lavendar_border"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+
+                    <TextView
+                        android:id="@+id/missionStatement"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="We are a group of Holy Crossian college students behind this lost and found app. Our goal is to simplify the process of finding and returning lost items within our school community, promoting a sense of responsibility and unity."
+                        android:textColor="@color/blue_secondary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+
+                        android:lineSpacingExtra="4dp"/>
+
+                    <TextView
+                        android:id="@+id/teamThanks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Our team is made up of dedicated individuals who are excited to enhance your lost and found experience. We're here to make your life easier and encourage you to get involved in reuniting with your belongings. Thank you for being part of our journey!"
+                        android:textColor="#555555"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="4dp"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#EEEEEE"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="24dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="A project by:\nHoly Crossian College Students"
+                        android:textAlignment="center"
+                        android:textSize="14sp"
+                        android:textColor="@color/maroon_primary"
+                        android:textStyle="italic"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
