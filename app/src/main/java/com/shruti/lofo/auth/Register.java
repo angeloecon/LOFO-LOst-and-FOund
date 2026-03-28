@@ -1,6 +1,4 @@
-package com.shruti.lofo;
-
-import static android.content.ContentValues.TAG;
+package com.shruti.lofo.auth;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,12 +13,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.shruti.lofo.R;
+import com.shruti.lofo.api.ApiService;
+import com.shruti.lofo.api.RetrofitClient;
+import com.shruti.lofo.data.model.RegisterRequest;
+import com.shruti.lofo.data.model.RegisterResponse;
 
-import java.util.HashMap;
-import java.util.Map;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Register extends AppCompatActivity {
 
@@ -28,27 +29,19 @@ public class Register extends AppCompatActivity {
     private TextView loginRedirectText;
     private Button signupButton;
 
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Initialize UI components
         signupName = findViewById(R.id.signup_name);
         signupEmail = findViewById(R.id.signup_email);
         signupPhone = findViewById(R.id.signup_phone);
         signupPassword = findViewById(R.id.signup_password);
-        loginRedirectText = findViewById(R.id.loginRedirectText);
         signupButton = findViewById(R.id.signup_button);
+        loginRedirectText = findViewById(R.id.loginLink);
 
-        // Initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-
-        // Email validation: highlight if domain is correct
+        // VALIDATION EMAIL CHECKER: HIGHLIGHT SCHOOL DOMAIN
         signupEmail.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -73,7 +66,7 @@ public class Register extends AppCompatActivity {
         String phone = signupPhone.getText().toString().trim();
         String password = signupPassword.getText().toString().trim();
 
-        // Validation checks
+        // VALIDATION CHECKS / CLAUSE
         if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -94,44 +87,29 @@ public class Register extends AppCompatActivity {
             return;
         }
 
-        // Create user with Firebase Auth
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            // Send email verification
-                            user.sendEmailVerification()
-                                    .addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            Toast.makeText(Register.this, "Verification email sent.", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Log.e(TAG, "sendEmailVerification", task1.getException());
-                                        }
-                                    });
+        // IF ALL VALID, REGISTER USER
+        RegisterRequest request = new RegisterRequest(email, password, name, phone);
 
-                            // Save extra user info in Firestore using UID
-                            Map<String, Object> userData = new HashMap<>();
-                            userData.put("name", name);
-                            userData.put("email", email);
-                            userData.put("phone", phone);
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<RegisterResponse> call = apiService.registerUser(request);
 
-                            db.collection("users")
-                                    .document(user.getUid())
-                                    .set(userData)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(Register.this, "Registered successfully!", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(Register.this, Login.class));
-                                        finish();
-                                    })
-                                    .addOnFailureListener(e -> Log.e(TAG, "Error adding user", e));
-                        }
-                    } else {
-                        Toast.makeText(Register.this,
-                                "Registration failed! Check email format, password length, or phone number.",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+        call.enqueue(new Callback<RegisterResponse>() {
+            @Override
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                if(response.isSuccessful()){
+                    Toast.makeText(Register.this, "Registered successfully!", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(Register.this, Login.class));
+                } else {
+                    Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                Log.e("RegisterError", "Network error: " + t.getMessage());
+                Toast.makeText(Register.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 

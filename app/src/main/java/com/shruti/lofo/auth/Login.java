@@ -1,27 +1,33 @@
-package com.shruti.lofo;
+package com.shruti.lofo.auth;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.shruti.lofo.BindingNavigation;
+import com.shruti.lofo.R;
+import com.shruti.lofo.api.ApiService;
+import com.shruti.lofo.api.RetrofitClient;
+import com.shruti.lofo.data.model.LoginRequest;
+import com.shruti.lofo.data.model.LoginResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Login extends AppCompatActivity {
-
-    // ⭐ 1. CRITICAL FIX: Explicit Field Declarations (Fixes "cannot find symbol: variable") ⭐
-    private EditText loginEmail, loginPassword;
     private Button loginButton;
-    private TextView signupRedirectText; // Ang "Don't have an account? " text
-    private TextView createAccountLink;  // Ang "Create Account" text
-
-    private FirebaseAuth mAuth;
+    private TextView createAccountLink;
+    private EditText loginEmail, loginPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,42 +36,34 @@ public class Login extends AppCompatActivity {
 
         loginEmail = findViewById(R.id.login_email);
         loginPassword = findViewById(R.id.login_password);
+
         loginButton = findViewById(R.id.login_button);
-        signupRedirectText = findViewById(R.id.signupRedirectText);
-        // ⭐ CRITICAL: Initialize the new TextView ID
         createAccountLink = findViewById(R.id.createAccountLink);
 
-        mAuth = FirebaseAuth.getInstance();
+        SharedPreferences sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String savedToken = sharedPreferences.getString("jwt_token", null);
 
-        // Check if the user is already logged in
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null && currentUser.isEmailVerified()) {
-            // User already logged in and verified, go to main screen
-            startActivity(new Intent(this, BindingNavigation.class));
-            finish();
-        }
+        // Implement this if Log out is functioning
+//        if(savedToken != null){
+//            startActivity(new Intent(this, BindingNavigation.class));
+//            finish();
+//        }
 
         loginButton.setOnClickListener(v -> {
-            if (!validateEmail() || !validatePassword()) { // Call to validation methods
-                Toast.makeText(Login.this, "Enter data in all fields", Toast.LENGTH_SHORT).show();
-            } else {
+            if(validateEmail() && validatePassword()) {
                 loginUser();
+            } else {
+                Toast.makeText(Login.this, "Enter data in all fields", Toast.LENGTH_SHORT).show();
             }
         });
-
 
         createAccountLink.setOnClickListener(v ->
                 startActivity(new Intent(Login.this, Register.class))
         );
 
-
-
     } // END of onCreate
 
-
-
-
-    // ⭐ 2. CRITICAL FIX: Re-inserting the missing method definitions (Fixes "cannot find symbol: method") ⭐
+    // Validate Email
     private boolean validateEmail() {
         String val = loginEmail.getText().toString().trim();
         if (val.isEmpty()) {
@@ -76,6 +74,9 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
+
+
+    // Validate Password
     private boolean validatePassword() {
         String val = loginPassword.getText().toString().trim();
         if (val.isEmpty()) {
@@ -86,39 +87,48 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
+    //    TODO: DONE transitioning to SQL / JWT Authentication
+
     private void loginUser () {
         String email = loginEmail.getText().toString().trim();
         String password = loginPassword.getText().toString().trim();
 
-        Log.d("LoginDebug", "Attempting login for: " + email);
+        LoginRequest request = new LoginRequest(email, password);
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<LoginResponse> call = apiService.loginUser(request);
 
-                            // Show success message immediately after task completes
-                            Toast.makeText(Login.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+        call.enqueue(new Callback<LoginResponse>() {
 
-                            if (user.isEmailVerified()) {
-                                // 1. Login SUCCESS and VERIFIED (Navigates)
-                                Log.d("LoginDebug", "Login SUCCESS: User verified. Navigating to BindingNavigation.");
-                                startActivity(new Intent(Login.this, BindingNavigation.class));
-                                finish();
-                            } else {
-                                // 2. Login SUCCESS but NOT VERIFIED (Stays on Login)
-                                Log.w("LoginDebug", "Login successful, but email NOT verified.");
-                                Toast.makeText(Login.this, "Please verify your email before proceeding.", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    } else {
-                        // 3. Login FAILED (Stays on Login)
-                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown Authentication Error.";
-                        Log.e("LoginDebug", "Login FAILED: " + errorMessage, task.getException());
-                        Toast.makeText(Login.this, "Authentication failed: " + errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
-    } // END of loginUser
+            // IF SUCCESS
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    String token = response.body().getToken();
 
-} // END of Login CLASSF
+                    SharedPreferences sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("jwt_token", token);
+                    editor.apply();
+
+                    Toast.makeText(Login.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+
+                    // Navigate to Main page
+                    startActivity(new Intent(Login.this, BindingNavigation.class));
+                    finish();
+                } else {
+                    Toast.makeText(Login.this, "Invalid email or password", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            // SERVER ERROR (Server is offline, no internet, etc.)
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Log.e("LoginError", "Network error: " + t.getMessage());
+                Toast.makeText(Login.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+}

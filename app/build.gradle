@@ -81,5 +81,12 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+
+    // API Calls
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    // converter to translate JSON object to Java object
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
 }
 

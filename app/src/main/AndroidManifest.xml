@@ -27,14 +27,14 @@
         android:requestLegacyExternalStorage="true">
 
         <activity
-            android:name=".Register"
+            android:name=".auth.Register"
             android:exported="false" />
         <activity
             android:name=".BindingNavigation"
             android:exported="true">
         </activity>
 
-        <activity android:name=".Login"
+        <activity android:name=".auth.Login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
