@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,22 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.shruti.lofo.R;
+import com.shruti.lofo.data.model.Item;
 
 import java.util.ArrayList;
 
 public class RecyclerRecentLoFoAdapter extends RecyclerView.Adapter<RecyclerRecentLoFoAdapter.ViewHolder> {
     private Context context;
-    private ArrayList<DashBoardViewModel> arr_recent_lofo;
+    private ArrayList<Item> arr_recent_lofo;
     private OnItemClickListener onItemClickListener;
 
-    public RecyclerRecentLoFoAdapter(Context context, ArrayList<DashBoardViewModel> arr_recent_lofo) {
+    public RecyclerRecentLoFoAdapter(Context context, ArrayList<Item> arr_recent_lofo) {
         this.arr_recent_lofo = arr_recent_lofo;
         this.context = context;
     }
 
     // Define an interface for item click listener
     public interface OnItemClickListener {
-        void onItemClick(DashBoardViewModel item);
+        void onItemClick(Item item);
     }
 
     // Set the click listener for this adapter
@@ -44,31 +44,34 @@ public class RecyclerRecentLoFoAdapter extends RecyclerView.Adapter<RecyclerRece
         return new ViewHolder(v);
     }
 
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DashBoardViewModel recentItems = arr_recent_lofo.get(position);
+        Item recentItem = arr_recent_lofo.get(position);
 
         Glide.with(context)
-                .load(recentItems.getImageURI())
+                .load(recentItem.getImage_url())
                 .error(R.drawable.sample_img)
                 .into(holder.imageURI);
 
-        holder.description.setText(recentItems.getDescription());
+        holder.description.setText(recentItem.getDescription());
+        holder.date.setText(recentItem.getDate());
 
-        String collectionName = recentItems.getCollectionName();
+        // Temporary
+        holder.owner_label.setText(recentItem.getItem_name());
 
-        String determine_tag = recentItems.getTag();
-        if (determine_tag.equalsIgnoreCase("Lost")) {
+        if (recentItem.getType().equalsIgnoreCase("Lost")) {
             holder.tag.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
-            holder.tag.setText(recentItems.getTag());
-            holder.date.setText(recentItems.getDateLost());
-            holder.ownerName.setText(recentItems.getOwnerName());
+            holder.tag.setText("Lost");
+            holder.owner_label.setText("Item");
+            holder.ownerName.setText(recentItem.getItem_name());
+
         } else {
             holder.tag.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_light));
-            holder.tag.setText(recentItems.getTag());
-            holder.owner_label.setText("Finder:");
-            holder.ownerName.setText(recentItems.getFinderName());
-            holder.date.setText(recentItems.getDateFound());
+            holder.tag.setText("Found");
+            holder.owner_label.setText("Item");
+            holder.ownerName.setText(recentItem.getItem_name());
         }
 
         // Set an item click listener
@@ -76,7 +79,7 @@ public class RecyclerRecentLoFoAdapter extends RecyclerView.Adapter<RecyclerRece
             @Override
             public void onClick(View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(recentItems);
+                    onItemClickListener.onItemClick(recentItem);
                 }
             }
         });

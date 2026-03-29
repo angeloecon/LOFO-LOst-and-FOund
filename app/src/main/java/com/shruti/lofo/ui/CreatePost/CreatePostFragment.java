@@ -1,4 +1,4 @@
-package com.shruti.lofo.ui.Lost;
+package com.shruti.lofo.ui.CreatePost;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -25,28 +25,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.shruti.lofo.CloudinaryConfig;
 import com.shruti.lofo.R;
-import com.shruti.lofo.Utility;
 import com.shruti.lofo.api.ApiService;
 import com.shruti.lofo.api.RetrofitClient;
 import com.shruti.lofo.data.model.Item;
 import com.shruti.lofo.data.model.ItemRequest;
 import com.shruti.lofo.databinding.FragmentCreatePostBinding;
-import com.shruti.lofo.models.LostItems;
 
 import org.json.JSONObject;
 
-
 import java.util.Calendar;
-import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import retrofit2.Call;
@@ -185,7 +177,7 @@ public class CreatePostFragment extends DialogFragment {
     private void validateAndSubmit() {
         String itemName = binding.itemNameEdittext.getText().toString().trim();
         String desc = binding.description.getText().toString().trim();
-        String loc = binding.description.getText().toString().trim();
+        String loc = binding.location.getText().toString().trim();
 
         if(itemName.isEmpty() || desc.isEmpty() || loc.isEmpty() || selectedDate == null || selectedTime == null || imageUri == null) {
             Toast.makeText(getContext(), "Please fill out all fields and select an image.", Toast.LENGTH_SHORT).show();
@@ -200,13 +192,13 @@ public class CreatePostFragment extends DialogFragment {
 
 
     private void uploadImageToCloudinary(String itemName, String desc, String loc){
-        String uploadUrl = "https://api.cloudinary.com/v1_1" + CloudinaryConfig.CLOUD_NAME + "/image/upload";
+        String uploadUrl = "https://api.cloudinary.com/v1_1/" + CloudinaryConfig.CLOUD_NAME + "/image/upload";
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
 
         try {
             params.put("upload_preset", "dny4hxil");
-            params.put("file", requireActivity());
+            params.put("file", requireActivity().getContentResolver().openInputStream(imageUri), "file.jpg");
         } catch (Exception e) {
             Toast.makeText(getContext(), "Error reading image file.", Toast.LENGTH_SHORT).show();
             binding.submitButton.setEnabled(true);
@@ -250,6 +242,7 @@ public class CreatePostFragment extends DialogFragment {
             public void onResponse(Call<Item> call, Response<Item> response) {
                 if(response.isSuccessful()){
                     Toast.makeText(getContext(), "Item posted successfully!", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().setFragmentResult("refresh_feed", new Bundle());
                     dismiss();
                 } else {
                     Toast.makeText(getContext(), "Failed to save item.", Toast.LENGTH_SHORT).show();
@@ -273,8 +266,8 @@ public class CreatePostFragment extends DialogFragment {
 
 
       @Override
-    public  void onDestroy(){
-        super.onDestroy();
+    public  void onDestroyView(){
+        super.onDestroyView();
         binding = null;
       }
 }
