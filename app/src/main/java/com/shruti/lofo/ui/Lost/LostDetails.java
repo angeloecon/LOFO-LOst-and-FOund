@@ -12,10 +12,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.shruti.lofo.R;
+import com.shruti.lofo.api.ApiService;
+import com.shruti.lofo.api.RetrofitClient;
+import com.shruti.lofo.data.model.Item;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LostDetails extends AppCompatActivity {
 
@@ -23,14 +27,12 @@ public class LostDetails extends AppCompatActivity {
     private TextView title, address, email, dateLost, timeLost, description, category, ownerName;
     private String phnum;
     private Button backBtn, callBtn, smsBtn;
-    private FirebaseFirestore db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lost_details);
-
-        db = FirebaseFirestore.getInstance();
 
         img = findViewById(R.id.img);
         title = findViewById(R.id.title);
@@ -45,43 +47,10 @@ public class LostDetails extends AppCompatActivity {
         callBtn = findViewById(R.id.call);
         smsBtn = findViewById(R.id.sms);
 
-        String itemId = getIntent().getStringExtra("itemId");
+        int itemId = getIntent().getIntExtra("itemId", -1);
 
-        if (itemId != null) {
-            DocumentReference itemRef = db.collection("lostItems").document(itemId);
-            itemRef.get().addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    String imageUrl = documentSnapshot.getString("imageURI");
-                    title.setText(documentSnapshot.getString("itemName"));
-                    address.setText(documentSnapshot.getString("location"));
-                    email.setText(documentSnapshot.getString("email"));
-                    description.setText(documentSnapshot.getString("description"));
-                    ownerName.setText(documentSnapshot.getString("ownerName"));
-                    category.setText(documentSnapshot.getString("category"));
-                    dateLost.setText(documentSnapshot.getString("dateLost"));
-                    timeLost.setText(documentSnapshot.getString("timeLost"));
-
-                    Object phnumObj = documentSnapshot.get("phnum");
-                    phnum = (phnumObj != null) ? phnumObj.toString() : "";
-
-                    if (imageUrl != null && !imageUrl.isEmpty()) {
-                        Glide.with(LostDetails.this)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.placeholder_image)
-                                .error(R.drawable.baseline_image_search_24)
-                                .into(img);
-                    } else {
-                        img.setImageResource(R.drawable.placeholder_image);
-                    }
-
-                } else {
-                    Toast.makeText(this, "Item details not found!", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }).addOnFailureListener(e -> {
-                Toast.makeText(this, "Error loading data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                finish();
-            });
+        if (itemId != -1) {
+             fetchItemDetail(itemId);
         } else {
             Toast.makeText(this, "Error: Item ID missing.", Toast.LENGTH_SHORT).show();
             finish();
@@ -90,6 +59,50 @@ public class LostDetails extends AppCompatActivity {
         callBtn.setOnClickListener(v -> makeCall(phnum));
         smsBtn.setOnClickListener(v -> sendSms(phnum));
         backBtn.setOnClickListener(v -> finish());
+    }
+
+    private void fetchItemDetail(int itemId) {
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<Item> call = apiService.getItemById(itemId);
+
+        call.enqueue(new Callback<Item>() {
+            @Override
+            public void onResponse(Call<Item> call, Response<Item> response) {
+                if(response.isSuccessful() && response.body() != null) {
+                    Item item = response.body();
+
+                    title.setText(item.getItem_name());
+                    address.setText(item.getLocation());
+                    description.setText(item.getDescription());
+                    category.setText(item.getCategory());
+                    dateLost.setText(item.getDate());
+                    timeLost.setText(item.getTime());
+
+                    phnum = item.getContact_phone();
+
+                    // Temporary, will change later
+                    ownerName.setText(item.getItem_name());
+
+                    Glide.with(LostDetails.this)
+                            .load(item.getImage_url())
+                            .placeholder(R.drawable.dashboard_img1) // Use your placeholder
+                            .error(R.drawable.dashboard_img1)
+                            .into(img);
+
+
+                } else {
+                    Toast.makeText(LostDetails.this, "Item details not found!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Item> call, Throwable t) {
+                Log.e("LostDetails", "API Error: " + t.getMessage());
+                Toast.makeText(LostDetails.this, "Error loading data.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     private void makeCall(String phoneNumber) {

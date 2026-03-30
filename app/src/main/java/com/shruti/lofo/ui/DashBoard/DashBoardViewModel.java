@@ -1,81 +1,69 @@
 package com.shruti.lofo.ui.DashBoard;
 
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.shruti.lofo.api.ApiService;
+import com.shruti.lofo.api.RetrofitClient;
+import com.shruti.lofo.data.model.Item;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashBoardViewModel extends ViewModel {
 
-    // --- Fields ---
-    String imageURI;
-    String documentId; // Used to hold the Firestore Document ID
-    String category, description, ownerName, finderName, tag, dateLost, dateFound, itemName;
-    String collectionName;
+    private final MutableLiveData<List<Item>> recentItemLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
-
-    public DashBoardViewModel(String imageURI, String category, String description, String ownerName, String finderName, String tag, String dateLost, String itemName, String dateFound) {
-        this.imageURI = imageURI;
-        this.category = category;
-        this.description = description;
-        this.ownerName = ownerName;
-        this.finderName = finderName;
-        this.itemName = itemName;
-        this.tag = tag;
-        this.dateLost = dateLost;
-        this.dateFound = dateFound;
-        // Removed: this.documentId = documentId; // Fix: documentId isn't an argument here
+    public LiveData<List<Item>> getRecentItem() {
+        return  recentItemLiveData;
     }
 
-    // --- Empty Constructor ---
-    public DashBoardViewModel() {
-        // Required empty public constructor for Firestore's .toObject(Class.class)
+    public LiveData<String> getError() {
+        return  errorLiveData;
     }
 
-    // --- Setters (CRITICAL FIXES for DashBoardFragment) ---
+    public void fetchFeed(boolean forceRefresh) {
+        if(!forceRefresh && getRecentItem().getValue() != null){
+            return;
+        }
 
-    // 1. Missing setter for 'tag'
-    public void setTag(String tag) {
-        this.tag = tag;
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<List<Item>> call = apiService.getItems(null);
+
+        call.enqueue(new Callback<List<Item>>() {
+            @Override
+            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                if(response.isSuccessful() && response.body() != null){
+                     List<Item> fetchedItems = response.body();
+
+                     // for top and to limit the front items
+                     List<Item> topTenItem = new ArrayList<>();
+
+                     int limit = Math.min(fetchedItems.size(), 10);
+                     for (int i = 0; i < limit; i++){
+                         topTenItem.add(fetchedItems.get(i));
+                     }
+
+                     recentItemLiveData.setValue(topTenItem);
+                } else {
+                    errorLiveData.setValue("Failed to load feed.");
+                 }
+            }
+
+            @Override
+            public void onFailure(Call<List<Item>> call, Throwable t) {
+                Log.e("DashBoard", "API Error: " + t.getMessage());
+                errorLiveData.setValue("Network error while loading feed.");
+            }
+        });
     }
 
-    // 2. Setter for 'documentId'
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
-    }
-
-    // --- Getters ---
-
-    public String getDocumentId() {
-        return documentId;
-    }
-
-    public String getCollectionName() {
-        return collectionName;
-    }
-
-    public String getImageURI() {
-        return imageURI;
-    }
-    public String getCategory() {
-        return category;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public String getOwnerName() {
-        return ownerName;
-    }
-    public String getFinderName() {
-        return finderName;
-    }
-    public String getDateLost() {
-        return dateLost;
-    }
-    public String getDateFound() {
-        return dateFound;
-    }
-    public String getTag() {
-        return tag;
-    }
-    public String getItemName() {
-        return itemName;
-    }
 }
